@@ -1,436 +1,316 @@
 import streamlit as st
-import random
-import base64
-from pathlib import Path
-
-# ---------------------------------------------------------
-# CONFIGURACIÓN
-# ---------------------------------------------------------
+import streamlit.components.v1 as components
 
 st.set_page_config(
-    page_title="Trivia: Villanas Disney",
-    page_icon="🖤",
+    page_title="Pikicha - La Chutana",
+    page_icon="🐶",
     layout="centered"
 )
 
-# ---------------------------------------------------------
-# ESTILOS
-# ---------------------------------------------------------
-
 st.markdown("""
 <style>
-
-.stApp {
-    background: linear-gradient(135deg, #120018, #2b0038, #09000f);
-    color: white;
-}
-
-.main-title {
-    text-align: center;
-    font-size: 42px;
-    font-weight: 800;
-    margin-bottom: 5px;
-}
-
-.subtitle {
-    text-align: center;
-    font-size: 18px;
-    color: #d9b8e8;
-    margin-bottom: 30px;
-}
-
-.question {
-    background: rgba(255,255,255,0.08);
-    padding: 22px;
-    border-radius: 18px;
-    margin-bottom: 15px;
-    border: 1px solid rgba(255,255,255,0.15);
-}
-
-.success-box {
-    padding: 25px;
-    border-radius: 20px;
-    text-align: center;
-    background: linear-gradient(135deg, #30104d, #6b238e);
-    box-shadow: 0 0 30px rgba(255, 0, 255, 0.35);
-}
-
-.pikicha {
-    width: 220px;
-    animation: bounce 1s infinite alternate;
-}
-
-@keyframes bounce {
-    from {
-        transform: translateY(0px) rotate(-3deg);
+    .stApp {
+        background: linear-gradient(#dff6ff, #fff7d6);
     }
-    to {
-        transform: translateY(-25px) rotate(3deg);
+
+    header {
+        visibility: hidden;
     }
-}
 
-.confetti {
-    font-size: 45px;
-    animation: spin 2s linear infinite;
-}
+    .titulo {
+        text-align: center;
+        font-size: 42px;
+        font-weight: bold;
+        color: #7b3f00;
+        margin-bottom: 0;
+    }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
+    .subtitulo {
+        text-align: center;
+        font-size: 20px;
+        color: #4b4b4b;
+        margin-bottom: 15px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# BANCO DE PREGUNTAS
-# ---------------------------------------------------------
+st.markdown(
+    '<div class="titulo">🐶 Pikicha en La Chutana 🐷</div>',
+    unsafe_allow_html=True
+)
 
-preguntas = [
-    {
-        "pregunta": "¿Cómo se llama la villana de 101 dálmatas?",
-        "respuesta": "Cruella de Vil",
-        "alternativas": [
-            "Cruella de Vil",
-            "Maléfica",
-            "Úrsula",
-            "Madame Medusa"
-        ]
-    },
-    {
-        "pregunta": "¿Qué villana intenta robar la voz de Ariel?",
-        "respuesta": "Úrsula",
-        "alternativas": [
-            "Úrsula",
-            "Yzma",
-            "Cruella de Vil",
-            "Madre Gothel"
-        ]
-    },
-    {
-        "pregunta": "¿Quién es la villana principal de La Bella Durmiente?",
-        "respuesta": "Maléfica",
-        "alternativas": [
-            "Maléfica",
-            "La Reina Malvada",
-            "Úrsula",
-            "Lady Tremaine"
-        ]
-    },
-    {
-        "pregunta": "¿Cómo se llama la madrastra de Cenicienta?",
-        "respuesta": "Lady Tremaine",
-        "alternativas": [
-            "Lady Tremaine",
-            "Madame Medusa",
-            "Yzma",
-            "Cruella de Vil"
-        ]
-    },
-    {
-        "pregunta": "¿Qué villana quiere mantenerse joven utilizando la magia del cabello de Rapunzel?",
-        "respuesta": "Madre Gothel",
-        "alternativas": [
-            "Madre Gothel",
-            "Maléfica",
-            "Úrsula",
-            "La Reina Malvada"
-        ]
-    },
-    {
-        "pregunta": "¿Quién es la villana de Blancanieves?",
-        "respuesta": "La Reina Malvada",
-        "alternativas": [
-            "La Reina Malvada",
-            "Lady Tremaine",
-            "Yzma",
-            "Cruella de Vil"
-        ]
-    },
-    {
-        "pregunta": "¿Cómo se llama la villana de Las locuras del emperador?",
-        "respuesta": "Yzma",
-        "alternativas": [
-            "Yzma",
-            "Úrsula",
-            "Madre Gothel",
-            "Maléfica"
-        ]
-    },
-    {
-        "pregunta": "¿Qué villana está obsesionada con conseguir cachorros dálmatas?",
-        "respuesta": "Cruella de Vil",
-        "alternativas": [
-            "Cruella de Vil",
-            "La Reina Malvada",
-            "Lady Tremaine",
-            "Yzma"
-        ]
-    },
-    {
-        "pregunta": "¿Qué villana vive bajo el mar?",
-        "respuesta": "Úrsula",
-        "alternativas": [
-            "Úrsula",
-            "Maléfica",
-            "Madre Gothel",
-            "Cruella de Vil"
-        ]
-    },
-    {
-        "pregunta": "¿Qué villana utiliza una manzana envenenada?",
-        "respuesta": "La Reina Malvada",
-        "alternativas": [
-            "La Reina Malvada",
-            "Úrsula",
-            "Yzma",
-            "Lady Tremaine"
-        ]
+st.markdown(
+    '<div class="subtitulo">¡Ayuda a Pikicha a atrapar todos los chanchitos!</div>',
+    unsafe_allow_html=True
+)
+
+game = r"""
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<style>
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #c9f2b3;
+    text-align: center;
+    overflow: hidden;
+}
+
+#game {
+    position: relative;
+    width: 620px;
+    height: 620px;
+    margin: auto;
+    background:
+        linear-gradient(45deg, #8bc34a 25%, transparent 25%),
+        linear-gradient(-45deg, #8bc34a 25%, transparent 25%),
+        #a8d66d;
+    background-size: 40px 40px;
+    border: 8px solid #704214;
+    border-radius: 18px;
+    box-shadow: 0 8px 20px #555;
+}
+
+.wall {
+    position: absolute;
+    background: #8b5a2b;
+    border: 3px solid #603813;
+    border-radius: 7px;
+}
+
+#pikicha {
+    position: absolute;
+    width: 42px;
+    height: 42px;
+    font-size: 38px;
+    z-index: 10;
+    transition: left .08s, top .08s;
+}
+
+.pig {
+    position: absolute;
+    font-size: 34px;
+    z-index: 5;
+}
+
+#scoreboard {
+    width: 620px;
+    margin: 10px auto;
+    display: flex;
+    justify-content: space-around;
+    font-size: 22px;
+    font-weight: bold;
+    color: #5a3500;
+}
+
+#message {
+    font-size: 24px;
+    font-weight: bold;
+    color: #7b3f00;
+    height: 35px;
+}
+
+#start {
+    padding: 10px 25px;
+    font-size: 18px;
+    background: #ffca28;
+    border: 3px solid #8d6e00;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="scoreboard">
+    <div>⭐ Puntos: <span id="score">0</span></div>
+    <div>❤️ Vidas: <span id="lives">3</span></div>
+    <div>🐷 Restantes: <span id="remaining">10</span></div>
+</div>
+
+<div id="message">¡Atrapa a los chanchitos!</div>
+
+<button id="start">▶️ EMPEZAR</button>
+
+<br><br>
+
+<div id="game">
+
+    <div class="wall" style="left:120px;top:80px;width:150px;height:30px;"></div>
+    <div class="wall" style="left:350px;top:80px;width:150px;height:30px;"></div>
+
+    <div class="wall" style="left:70px;top:180px;width:30px;height:180px;"></div>
+    <div class="wall" style="left:520px;top:180px;width:30px;height:180px;"></div>
+
+    <div class="wall" style="left:200px;top:180px;width:220px;height:30px;"></div>
+    <div class="wall" style="left:200px;top:410px;width:220px;height:30px;"></div>
+
+    <div class="wall" style="left:120px;top:500px;width:150px;height:30px;"></div>
+    <div class="wall" style="left:350px;top:500px;width:150px;height:30px;"></div>
+
+    <div id="pikicha">🐶</div>
+
+    <div class="pig" id="pig1" style="left:30px;top:30px;">🐷</div>
+    <div class="pig" id="pig2" style="left:300px;top:30px;">🐷</div>
+    <div class="pig" id="pig3" style="left:550px;top:30px;">🐷</div>
+    <div class="pig" id="pig4" style="left:30px;top:400px;">🐷</div>
+    <div class="pig" id="pig5" style="left:550px;top:400px;">🐷</div>
+    <div class="pig" id="pig6" style="left:300px;top:250px;">🐷</div>
+    <div class="pig" id="pig7" style="left:130px;top:250px;">🐷</div>
+    <div class="pig" id="pig8" style="left:450px;top:250px;">🐷</div>
+    <div class="pig" id="pig9" style="left:130px;top:450px;">🐷</div>
+    <div class="pig" id="pig10" style="left:450px;top:450px;">🐷</div>
+
+</div>
+
+<script>
+
+const pikicha = document.getElementById("pikicha");
+const game = document.getElementById("game");
+
+let x = 290;
+let y = 330;
+
+let score = 0;
+let lives = 3;
+let playing = false;
+
+const speed = 10;
+
+pikicha.style.left = x + "px";
+pikicha.style.top = y + "px";
+
+function updatePosition() {
+
+    pikicha.style.left = x + "px";
+    pikicha.style.top = y + "px";
+
+    checkPigs();
+}
+
+function checkCollision(a, b) {
+
+    const r1 = a.getBoundingClientRect();
+    const r2 = b.getBoundingClientRect();
+
+    return !(
+        r1.right < r2.left ||
+        r1.left > r2.right ||
+        r1.bottom < r2.top ||
+        r1.top > r2.bottom
+    );
+}
+
+function checkPigs() {
+
+    document.querySelectorAll(".pig").forEach(pig => {
+
+        if (
+            pig.style.display !== "none" &&
+            checkCollision(pikicha, pig)
+        ) {
+
+            pig.style.display = "none";
+
+            score += 100;
+
+            document.getElementById("score").innerText = score;
+
+            let remaining =
+                document.querySelectorAll(
+                    '.pig:not([style*="display: none"])'
+                ).length;
+
+            document.getElementById("remaining").innerText = remaining;
+
+            if (remaining === 0) {
+                playing = false;
+
+                document.getElementById("message").innerText =
+                    "🎉 ¡PIKICHA GANÓ! 🎉";
+
+                alert(
+                    "🐶🏆 ¡Felicidades! Pikicha atrapó todos los chanchitos de La Chutana."
+                );
+            }
+        }
+    });
+}
+
+function move(dx, dy) {
+
+    if (!playing) return;
+
+    let newX = x + dx;
+    let newY = y + dy;
+
+    newX = Math.max(0, Math.min(570, newX));
+    newY = Math.max(0, Math.min(570, newY));
+
+    x = newX;
+    y = newY;
+
+    updatePosition();
+}
+
+document.addEventListener("keydown", function(e) {
+
+    if (e.key === "ArrowUp" || e.key === "w") {
+        e.preventDefault();
+        move(0, -speed);
     }
-]
-
-# ---------------------------------------------------------
-# INICIALIZAR TRIVIA
-# ---------------------------------------------------------
 
-if "iniciada" not in st.session_state:
-    st.session_state.iniciada = False
+    if (e.key === "ArrowDown" || e.key === "s") {
+        e.preventDefault();
+        move(0, speed);
+    }
 
-if "terminada" not in st.session_state:
-    st.session_state.terminada = False
+    if (e.key === "ArrowLeft" || e.key === "a") {
+        e.preventDefault();
+        move(-speed, 0);
+    }
 
-if "preguntas" not in st.session_state:
-    st.session_state.preguntas = []
+    if (e.key === "ArrowRight" || e.key === "d") {
+        e.preventDefault();
+        move(speed, 0);
+    }
 
-if "respuestas" not in st.session_state:
-    st.session_state.respuestas = {}
+});
 
-# ---------------------------------------------------------
-# PANTALLA PRINCIPAL
-# ---------------------------------------------------------
+document.getElementById("start").onclick = function() {
 
-st.markdown(
-    '<div class="main-title">🖤 TRIVIA DE LAS VILLANAS DISNEY 🖤</div>',
-    unsafe_allow_html=True
-)
+    playing = true;
 
-st.markdown(
-    '<div class="subtitle">¿Cuánto sabes sobre las villanas más famosas?</div>',
-    unsafe_allow_html=True
-)
+    document.getElementById("message").innerText =
+        "🐷 ¡Atrapa a los chanchitos!";
 
-# ---------------------------------------------------------
-# INICIO
-# ---------------------------------------------------------
+};
 
-if not st.session_state.iniciada:
+</script>
 
-    st.markdown("""
-    <div class="question">
-        <h3>🎭 ¿Estás preparado?</h3>
-        <p>
-        Tendrás que responder 5 preguntas.
-        Las preguntas y alternativas aparecerán en orden aleatorio.
-        </p>
-        <p>
-        🏆 Consigue 5/5 para desbloquear una sorpresa especial.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+</body>
+</html>
+"""
 
-    if st.button("✨ COMENZAR TRIVIA", use_container_width=True):
+components.html(game, height=780, scrolling=False)
 
-        st.session_state.preguntas = random.sample(preguntas, 5)
+st.markdown("""
+### 🎮 Cómo jugar
 
-        # Mezclar alternativas
-        for pregunta in st.session_state.preguntas:
-            random.shuffle(pregunta["alternativas"])
+**⬆️ ⬇️ ⬅️ ➡️** para mover a Pikicha.
 
-        st.session_state.respuestas = {}
-        st.session_state.iniciada = True
-        st.session_state.terminada = False
+También puedes utilizar **W A S D**.
 
-        st.rerun()
+🎯 **Objetivo:** atrapar los 10 chanchitos.
 
-# ---------------------------------------------------------
-# TRIVIA
-# ---------------------------------------------------------
+🏆 Cada chanchito atrapado = **100 puntos**.
 
-elif st.session_state.iniciada and not st.session_state.terminada:
-
-    st.markdown(
-        f"### 🎭 Responde las 5 preguntas"
-    )
-
-    with st.form("trivia_form"):
-
-        for i, pregunta in enumerate(st.session_state.preguntas):
-
-            st.markdown(
-                f"""
-                <div class="question">
-                    <h3>Pregunta {i + 1}</h3>
-                    <p>{pregunta["pregunta"]}</p>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-            st.radio(
-                "Selecciona una respuesta:",
-                pregunta["alternativas"],
-                key=f"respuesta_{i}",
-                index=None
-            )
-
-        enviar = st.form_submit_button(
-            "🏆 TERMINAR TRIVIA",
-            use_container_width=True
-        )
-
-        if enviar:
-
-            respuestas = {}
-
-            for i, pregunta in enumerate(st.session_state.preguntas):
-                respuestas[i] = st.session_state.get(
-                    f"respuesta_{i}"
-                )
-
-            # Verificar que todas tengan respuesta
-            if any(v is None for v in respuestas.values()):
-
-                st.warning(
-                    "⚠️ Debes responder todas las preguntas antes de terminar."
-                )
-
-            else:
-
-                st.session_state.respuestas = respuestas
-                st.session_state.terminada = True
-                st.rerun()
-
-# ---------------------------------------------------------
-# RESULTADO
-# ---------------------------------------------------------
-
-elif st.session_state.terminada:
-
-    puntaje = 0
-
-    for i, pregunta in enumerate(st.session_state.preguntas):
-
-        respuesta_usuario = st.session_state.respuestas[i]
-
-        if respuesta_usuario == pregunta["respuesta"]:
-            puntaje += 1
-
-    st.markdown("---")
-
-    if puntaje == 5:
-
-        st.balloons()
-
-        st.markdown("""
-        <div class="success-box">
-
-        <div class="confetti">🎉 🖤 🎉</div>
-
-        <h1>¡PERFECTO!</h1>
-
-        <h2>¡5 de 5 respuestas correctas!</h2>
-
-        <p>Has demostrado que eres un experto en villanas Disney.</p>
-
-        <h2>🐶 ¡PIKICHA ESTÁ DE FIESTA! 🐶</h2>
-
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Buscar GIF de Pikicha
-        gif_path = Path("assets/pikicha.gif")
-
-        if gif_path.exists():
-
-            with open(gif_path, "rb") as file:
-                gif_data = base64.b64encode(file.read()).decode()
-
-            st.markdown(
-                f"""
-                <div style="text-align:center;margin-top:25px;">
-                    <img
-                        src="data:image/gif;base64,{gif_data}"
-                        class="pikicha"
-                    >
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        else:
-
-            # Animación temporal si todavía no se ha añadido
-            # el GIF real de Pikicha.
-            st.markdown("""
-            <div style="
-                text-align:center;
-                font-size:120px;
-                margin-top:25px;
-                animation:bounce 1s infinite alternate;
-            ">
-                🐶
-            </div>
-
-            <div style="
-                text-align:center;
-                font-size:25px;
-                font-weight:bold;
-            ">
-                ¡Pikicha está celebrando contigo! 🎉
-            </div>
-            """, unsafe_allow_html=True)
-
-    else:
-
-        st.markdown(
-            f"""
-            <div class="success-box">
-                <h1>🎭 Resultado</h1>
-                <h2>{puntaje}/5 correctas</h2>
-                <p>¡Buen intento! Las villanas todavía tienen algunos secretos.</p>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    # Mostrar respuestas
-    st.markdown("### 📋 Tus respuestas")
-
-    for i, pregunta in enumerate(st.session_state.preguntas):
-
-        respuesta_usuario = st.session_state.respuestas[i]
-        correcta = pregunta["respuesta"]
-
-        if respuesta_usuario == correcta:
-
-            st.success(
-                f"Pregunta {i + 1}: ✅ Correcta — {correcta}"
-            )
-
-        else:
-
-            st.error(
-                f"Pregunta {i + 1}: ❌ Tu respuesta: "
-                f"{respuesta_usuario} | Correcta: {correcta}"
-            )
-
-    st.markdown("")
-
-    if st.button("🔄 JUGAR NUEVAMENTE", use_container_width=True):
-
-        st.session_state.iniciada = False
-        st.session_state.terminada = False
-        st.session_state.preguntas = []
-        st.session_state.respuestas = {}
-
-        st.rerun()
+🐶 ¡Completa la granja y conviértete en el campeón de La Chutana!
+""")
