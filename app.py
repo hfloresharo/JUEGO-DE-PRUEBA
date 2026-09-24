@@ -1,584 +1,316 @@
-```python
 import streamlit as st
 import streamlit.components.v1 as components
 
 st.set_page_config(
-    page_title="Pikicha en La Chutana",
+    page_title="Pikicha - La Chutana",
     page_icon="🐶",
     layout="centered"
 )
 
-st.markdown(
-    """
-    <style>
+st.markdown("""
+<style>
     .stApp {
-        background: linear-gradient(#dff6ff, #fff3c4);
+        background: linear-gradient(#dff6ff, #fff7d6);
     }
 
     header {
         visibility: hidden;
     }
 
-    .title {
+    .titulo {
         text-align: center;
         font-size: 42px;
         font-weight: bold;
         color: #7b3f00;
+        margin-bottom: 0;
     }
 
-    .subtitle {
+    .subtitulo {
         text-align: center;
         font-size: 20px;
         color: #4b4b4b;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
     }
-    </style>
-    """,
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown(
+    '<div class="titulo">🐶 Pikicha en La Chutana 🐷</div>',
     unsafe_allow_html=True
 )
 
 st.markdown(
-    '<div class="title">🐶 Pikicha en La Chutana 🐷</div>',
+    '<div class="subtitulo">¡Ayuda a Pikicha a atrapar todos los chanchitos!</div>',
     unsafe_allow_html=True
 )
 
-st.markdown(
-    '<div class="subtitle">'
-    'Atrapa los chanchitos y escapa de Luca 👦'
-    '</div>',
-    unsafe_allow_html=True
-)
-
-html = """
+game = r"""
 <!DOCTYPE html>
-
 <html>
-
 <head>
-
 <meta charset="UTF-8">
 
 <style>
 
-* {
-    box-sizing: border-box;
-}
-
 body {
     margin: 0;
-    padding: 10px;
     font-family: Arial, sans-serif;
+    background: #c9f2b3;
     text-align: center;
-    background: #d9f5c4;
+    overflow: hidden;
 }
 
-.info {
-    width: 620px;
-    max-width: 95vw;
-    margin: auto;
-    display: flex;
-    justify-content: space-around;
-    font-size: 20px;
-    font-weight: bold;
-    color: #5b3800;
-}
-
-#mensaje {
-    height: 35px;
-    font-size: 21px;
-    font-weight: bold;
-    color: #7b3f00;
-}
-
-#juego {
+#game {
     position: relative;
-
     width: 620px;
     height: 620px;
-
-    max-width: 95vw;
-
     margin: auto;
-
-    background-color: #91c957;
-
+    background:
+        linear-gradient(45deg, #8bc34a 25%, transparent 25%),
+        linear-gradient(-45deg, #8bc34a 25%, transparent 25%),
+        #a8d66d;
+    background-size: 40px 40px;
     border: 8px solid #704214;
-
     border-radius: 18px;
-
-    overflow: hidden;
-
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 20px #555;
 }
 
-/* CAMPO */
-
-#juego::before {
-    content: "🌾";
+.wall {
     position: absolute;
-    left: 15px;
-    top: 15px;
-    font-size: 30px;
-}
-
-#juego::after {
-    content: "🌻";
-    position: absolute;
-    right: 15px;
-    bottom: 15px;
-    font-size: 30px;
-}
-
-/* MUROS */
-
-.muro {
-    position: absolute;
-
     background: #8b5a2b;
-
     border: 3px solid #603813;
-
-    border-radius: 8px;
-}
-
-/* PERSONAJES */
-
-.personaje {
-    position: absolute;
-
-    width: 45px;
-    height: 45px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    font-size: 36px;
-
-    z-index: 20;
-
-    user-select: none;
+    border-radius: 7px;
 }
 
 #pikicha {
-    left: 285px;
-    top: 330px;
-}
-
-#luca {
-    left: 45px;
-    top: 540px;
-}
-
-/* CHANCHITOS */
-
-.chanchito {
     position: absolute;
-
-    width: 40px;
-    height: 40px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    font-size: 32px;
-
+    width: 42px;
+    height: 42px;
+    font-size: 38px;
     z-index: 10;
+    transition: left .08s, top .08s;
 }
 
-/* BOTON */
+.pig {
+    position: absolute;
+    font-size: 34px;
+    z-index: 5;
+}
 
-button {
-    margin: 10px;
-
-    padding: 10px 25px;
-
-    font-size: 18px;
-
+#scoreboard {
+    width: 620px;
+    margin: 10px auto;
+    display: flex;
+    justify-content: space-around;
+    font-size: 22px;
     font-weight: bold;
+    color: #5a3500;
+}
 
-    border-radius: 12px;
+#message {
+    font-size: 24px;
+    font-weight: bold;
+    color: #7b3f00;
+    height: 35px;
+}
 
-    border: 3px solid #8d6e00;
-
+#start {
+    padding: 10px 25px;
+    font-size: 18px;
     background: #ffca28;
-
+    border: 3px solid #8d6e00;
+    border-radius: 12px;
     cursor: pointer;
-}
-
-button:hover {
-    transform: scale(1.05);
-}
-
-.ayuda {
-    font-size: 16px;
-    color: #513b00;
+    font-weight: bold;
 }
 
 </style>
-
 </head>
-
 
 <body>
 
-
-<div class="info">
-
-    <div>
-        ⭐ Puntos:
-        <span id="puntos">0</span>
-    </div>
-
-    <div>
-        ❤️ Vidas:
-        <span id="vidas">3</span>
-    </div>
-
-    <div>
-        🐷:
-        <span id="restantes">10</span>
-    </div>
-
+<div id="scoreboard">
+    <div>⭐ Puntos: <span id="score">0</span></div>
+    <div>❤️ Vidas: <span id="lives">3</span></div>
+    <div>🐷 Restantes: <span id="remaining">10</span></div>
 </div>
 
+<div id="message">¡Atrapa a los chanchitos!</div>
 
-<div id="mensaje">
+<button id="start">▶️ EMPEZAR</button>
 
-    ¡Atrapa los chanchitos!
+<br><br>
+
+<div id="game">
+
+    <div class="wall" style="left:120px;top:80px;width:150px;height:30px;"></div>
+    <div class="wall" style="left:350px;top:80px;width:150px;height:30px;"></div>
+
+    <div class="wall" style="left:70px;top:180px;width:30px;height:180px;"></div>
+    <div class="wall" style="left:520px;top:180px;width:30px;height:180px;"></div>
+
+    <div class="wall" style="left:200px;top:180px;width:220px;height:30px;"></div>
+    <div class="wall" style="left:200px;top:410px;width:220px;height:30px;"></div>
+
+    <div class="wall" style="left:120px;top:500px;width:150px;height:30px;"></div>
+    <div class="wall" style="left:350px;top:500px;width:150px;height:30px;"></div>
+
+    <div id="pikicha">🐶</div>
+
+    <div class="pig" id="pig1" style="left:30px;top:30px;">🐷</div>
+    <div class="pig" id="pig2" style="left:300px;top:30px;">🐷</div>
+    <div class="pig" id="pig3" style="left:550px;top:30px;">🐷</div>
+    <div class="pig" id="pig4" style="left:30px;top:400px;">🐷</div>
+    <div class="pig" id="pig5" style="left:550px;top:400px;">🐷</div>
+    <div class="pig" id="pig6" style="left:300px;top:250px;">🐷</div>
+    <div class="pig" id="pig7" style="left:130px;top:250px;">🐷</div>
+    <div class="pig" id="pig8" style="left:450px;top:250px;">🐷</div>
+    <div class="pig" id="pig9" style="left:130px;top:450px;">🐷</div>
+    <div class="pig" id="pig10" style="left:450px;top:450px;">🐷</div>
 
 </div>
-
-
-<button onclick="iniciarJuego()">
-
-    ▶️ EMPEZAR
-
-</button>
-
-
-<div class="ayuda">
-
-    Usa ⬆️ ⬇️ ⬅️ ➡️ o W A S D
-
-</div>
-
-
-<br>
-
-
-<div id="juego">
-
-
-    <!-- MUROS -->
-
-    <div
-        class="muro"
-        style="left:110px; top:80px; width:150px; height:30px;">
-    </div>
-
-    <div
-        class="muro"
-        style="left:360px; top:80px; width:150px; height:30px;">
-    </div>
-
-
-    <div
-        class="muro"
-        style="left:70px; top:170px; width:30px; height:180px;">
-    </div>
-
-
-    <div
-        class="muro"
-        style="left:520px; top:170px; width:30px; height:180px;">
-    </div>
-
-
-    <div
-        class="muro"
-        style="left:190px; top:190px; width:230px; height:30px;">
-    </div>
-
-
-    <div
-        class="muro"
-        style="left:190px; top:410px; width:230px; height:30px;">
-    </div>
-
-
-    <div
-        class="muro"
-        style="left:110px; top:500px; width:150px; height:30px;">
-    </div>
-
-
-    <div
-        class="muro"
-        style="left:360px; top:500px; width:150px; height:30px;">
-    </div>
-
-
-    <!-- PIKICHA -->
-
-    <div
-        id="pikicha"
-        class="personaje">
-
-        🐶
-
-    </div>
-
-
-    <!-- LUCA -->
-
-    <div
-        id="luca"
-        class="personaje">
-
-        👦
-
-    </div>
-
-
-    <!-- CHANCHITOS -->
-
-    <div
-        class="chanchito"
-        id="c1"
-        style="left:30px; top:30px;">
-
-        🐷
-
-    </div>
-
-
-    <div
-        class="chanchito"
-        id="c2"
-        style="left:300px; top:30px;">
-
-        🐷
-
-    </div>
-
-
-    <div
-        class="chanchito"
-        id="c3"
-        style="left:550px; top:30px;">
-
-        🐷
-
-    </div>
-
-
-    <div
-        class="chanchito"
-        id="c4"
-        style="left:30px; top:390px;">
-
-        🐷
-
-    </div>
-
-
-    <div
-        class="chanchito"
-        id="c5"
-        style="left:550px; top:390px;">
-
-        🐷
-
-    </div>
-
-
-    <div
-        class="chanchito"
-        id="c6"
-        style="left:300px; top:250px;">
-
-        🐷
-
-    </div>
-
-
-    <div
-        class="chanchito"
-        id="c7"
-        style="left:130px; top:250px;">
-
-        🐷
-
-    </div>
-
-
-    <div
-        class="chanchito"
-        id="c8"
-        style="left:450px; top:250px;">
-
-        🐷
-
-    </div>
-
-
-    <div
-        class="chanchito"
-        id="c9"
-        style="left:130px; top:450px;">
-
-        🐷
-
-    </div>
-
-
-    <div
-        class="chanchito"
-        id="c10"
-        style="left:450px; top:450px;">
-
-        🐷
-
-    </div>
-
-
-</div>
-
 
 <script>
 
-let px = 285;
-let py = 330;
+const pikicha = document.getElementById("pikicha");
+const game = document.getElementById("game");
 
-let lx = 45;
-let ly = 540;
+let x = 290;
+let y = 330;
 
-let puntos = 0;
-let vidas = 3;
+let score = 0;
+let lives = 3;
+let playing = false;
 
-let jugando = false;
+const speed = 10;
 
-let chanchitos = 10;
+pikicha.style.left = x + "px";
+pikicha.style.top = y + "px";
 
-const velocidadPikicha = 8;
+function updatePosition() {
 
-const velocidadLuca = 1.8;
+    pikicha.style.left = x + "px";
+    pikicha.style.top = y + "px";
 
-
-const pikicha =
-    document.getElementById("pikicha");
-
-const luca =
-    document.getElementById("luca");
-
-
-function actualizar() {
-
-    pikicha.style.left =
-        px + "px";
-
-    pikicha.style.top =
-        py + "px";
-
-
-    luca.style.left =
-        lx + "px";
-
-    luca.style.top =
-        ly + "px";
-
+    checkPigs();
 }
 
+function checkCollision(a, b) {
 
-function iniciarJuego() {
+    const r1 = a.getBoundingClientRect();
+    const r2 = b.getBoundingClientRect();
 
-    puntos = 0;
-
-    vidas = 3;
-
-    chanchitos = 10;
-
-    px = 285;
-
-    py = 330;
-
-    lx = 45;
-
-    ly = 540;
-
-    jugando = true;
-
-
-    document.getElementById("puntos")
-        .innerText = puntos;
-
-    document.getElementById("vidas")
-        .innerText = vidas;
-
-    document.getElementById("restantes")
-        .innerText = chanchitos;
-
-    document.getElementById("mensaje")
-        .innerText =
-        "🐷 ¡Atrapa los chanchitos y escapa de Luca!";
-
-
-    document
-        .querySelectorAll(".chanchito")
-        .forEach(function(c) {
-
-            c.style.display = "flex";
-
-        });
-
-
-    actualizar();
-
+    return !(
+        r1.right < r2.left ||
+        r1.left > r2.right ||
+        r1.bottom < r2.top ||
+        r1.top > r2.bottom
+    );
 }
 
+function checkPigs() {
 
-function mover(dx, dy) {
-
-    if (!jugando) {
-        return;
-    }
-
-
-    px += dx;
-    py += dy;
-
-
-    if (px < 0) {
-        px = 0;
-    }
-
-    if (py < 0) {
-        py = 0;
-    }
-
-    if (px > 570) {
-        px = 570;
-    }
-
-    if (py > 570) {
-        py = 570;
-    }
-
-
-    actualizar();
-
-    revisarChanchitos();
-
-}
-
-
-document.addEventListener(
-    "keydown",
-    function(event) {
+    document.querySelectorAll(".pig").forEach(pig => {
 
         if (
-            event.key === "ArrowUp" ||
+            pig.style.display !== "none" &&
+            checkCollision(pikicha, pig)
+        ) {
+
+            pig.style.display = "none";
+
+            score += 100;
+
+            document.getElementById("score").innerText = score;
+
+            let remaining =
+                document.querySelectorAll(
+                    '.pig:not([style*="display: none"])'
+                ).length;
+
+            document.getElementById("remaining").innerText = remaining;
+
+            if (remaining === 0) {
+                playing = false;
+
+                document.getElementById("message").innerText =
+                    "🎉 ¡PIKICHA GANÓ! 🎉";
+
+                alert(
+                    "🐶🏆 ¡Felicidades! Pikicha atrapó todos los chanchitos de La Chutana."
+                );
+            }
+        }
+    });
+}
+
+function move(dx, dy) {
+
+    if (!playing) return;
+
+    let newX = x + dx;
+    let newY = y + dy;
+
+    newX = Math.max(0, Math.min(570, newX));
+    newY = Math.max(0, Math.min(570, newY));
+
+    x = newX;
+    y = newY;
+
+    updatePosition();
+}
+
+document.addEventListener("keydown", function(e) {
+
+    if (e.key === "ArrowUp" || e.key === "w") {
+        e.preventDefault();
+        move(0, -speed);
+    }
+
+    if (e.key === "ArrowDown" || e.key === "s") {
+        e.preventDefault();
+        move(0, speed);
+    }
+
+    if (e.key === "ArrowLeft" || e.key === "a") {
+        e.preventDefault();
+        move(-speed, 0);
+    }
+
+    if (e.key === "ArrowRight" || e.key === "d") {
+        e.preventDefault();
+        move(speed, 0);
+    }
+
+});
+
+document.getElementById("start").onclick = function() {
+
+    playing = true;
+
+    document.getElementById("message").innerText =
+        "🐷 ¡Atrapa a los chanchitos!";
+
+};
+
+</script>
+
+</body>
+</html>
+"""
+
+components.html(game, height=780, scrolling=False)
+
+st.markdown("""
+### 🎮 Cómo jugar
+
+**⬆️ ⬇️ ⬅️ ➡️** para mover a Pikicha.
+
+También puedes utilizar **W A S D**.
+
+🎯 **Objetivo:** atrapar los 10 chanchitos.
+
+🏆 Cada chanchito atrapado = **100 puntos**.
+
+🐶 ¡Completa la granja y conviértete en el campeón de La Chutana!
+""")
